@@ -1,7 +1,7 @@
 # GameDev4-Networking
 HKU Game Development Kernmodule 4 Networking
 
-Documentatie:
+Documentatie: https://github.com/MicksTape/GameDev4-Networking/blob/main/Documentatie-Kernmodule-Networking-MickTeunissen.pdf
 
 Video:
 
