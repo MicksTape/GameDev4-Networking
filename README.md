@@ -3,7 +3,7 @@ HKU Game Development Kernmodule 4 Networking
 
 Documentatie: https://github.com/MicksTape/GameDev4-Networking/blob/main/Documentatie-Kernmodule-Networking-MickTeunissen.pdf
 
-Video:
+Video: https://youtu.be/-NxaPvdHCBM
 
 PHP/SQL: https://github.com/MicksTape/GameDev4-Networking/blob/main/PHP-SQL.zip
 
