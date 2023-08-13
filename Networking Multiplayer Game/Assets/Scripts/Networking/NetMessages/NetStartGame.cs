@@ -1,7 +1,10 @@
 using Unity.Networking.Transport;
 using UnityEngine;
+using Unity.Collections;
 
 public class NetStartGame : NetMessage {
+
+    public FixedString64Bytes SessionId { set; get; }
 
     // Making the data
     public NetStartGame() {
@@ -18,11 +21,12 @@ public class NetStartGame : NetMessage {
     // Pack the data
     public override void Serialize(ref DataStreamWriter writer) {
         writer.WriteByte((byte)Code);
+        writer.WriteFixedString64(SessionId);
     }
 
     // Unpack the data
     public override void Deserialize(DataStreamReader reader) {
-
+        SessionId = reader.ReadFixedString64();
     }
 
 

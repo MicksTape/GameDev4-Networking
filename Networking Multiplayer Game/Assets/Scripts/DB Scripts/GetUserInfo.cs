@@ -28,6 +28,7 @@ public class GetUserInfo : MonoBehaviour {
     private string userName;
     private string userPassword;
     private int currentScore;
+    private string sessionId;
 
     private Action<string> createUserInfoCallback;
 
@@ -37,6 +38,8 @@ public class GetUserInfo : MonoBehaviour {
         userName = Main.Instance.userInfo.UserName;
         userPassword = Main.Instance.userInfo.UserPassword;
         currentScore = Main.Instance.userInfo.Score;
+        sessionId = Main.Instance.gameManager.sessionID;
+
 
         // Callback for creating user information
         createUserInfoCallback = jsonArray => {
@@ -48,13 +51,13 @@ public class GetUserInfo : MonoBehaviour {
 
         // Open URL to edit profile
         accountSettingsButton.onClick.AddListener(() => {
-            string url = "https://studenthome.hku.nl/~mick.teunissen/edit_profile.php?id=" + userId + "&username=" + userName + "&password=" + Main.Instance.userInfo.UserPassword;
+            string url = "https://studenthome.hku.nl/~mick.teunissen/edit_profile.php?id=" + userId + "&username=" + userName + "&password=" + Main.Instance.userInfo.UserPassword + "&session_id=" + sessionId;
             Application.OpenURL(url);
         });
 
         // Open URL to view highscores
         highscoresButton.onClick.AddListener(() => {
-            string url = "https://studenthome.hku.nl/~mick.teunissen/highscores.php";
+            string url = "https://studenthome.hku.nl/~mick.teunissen/highscores.php?&session_id=" + sessionId;
             Application.OpenURL(url);
         });
 

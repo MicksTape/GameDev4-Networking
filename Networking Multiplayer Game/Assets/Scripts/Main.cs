@@ -9,6 +9,7 @@ public class Main : MonoBehaviour {
     public Web web;
     public UserInfo userInfo;
     public Login login;
+    public ServerLogin serverLogin;
     public Register register;
     public GameObject userProfile;
     public bool canCheck = false;

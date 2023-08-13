@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour {
     public GameObject loginWindow; // Login window
     public GameObject registerWindow; // Register window
     public GameObject welcomeWindow; // Welcome window
+    public GameObject serverLoginWindow; // Server login window
     public GameObject lobbyWindow; // Lobby window
     public GameObject waitingWindow; // Waiting window
     public GameObject gameWindow; // Game window
@@ -62,6 +63,8 @@ public class GameManager : MonoBehaviour {
     private bool playerTwoHasSelected = false; // Flag indicating if player two has selected a unit
     private int playerOneUnit, playerTwoUnit; // Units selected by player one and player two
     [SerializeField] private TMP_Text statusText; // Text for displaying status messages
+    public string sessionID;
+    public TMP_Text sessionText; // Text for displaying status messages
     [SerializeField] private GameObject playerOneBanner, playerTwoBanner; // Banners for player one and player two
     [SerializeField] private GameObject playerOneWinBanner, playerTwoWinBanner; // Win banners for player one and player two
     [SerializeField] private Sprite infantrySprite, archerSprite, cavalrySprite, unknownSprite; // Sprites representing different unit types
@@ -97,7 +100,8 @@ public class GameManager : MonoBehaviour {
         //clientIPAdressInput.text = "127.0.0.1"; // FOR TESTING PURPOSES
 
         // Enable and disable screens on start
-        Main.Instance.gameManager.loginWindow.SetActive(true);
+        Main.Instance.gameManager.serverLoginWindow.SetActive(true);
+        Main.Instance.gameManager.loginWindow.SetActive(false);
         Main.Instance.gameManager.registerWindow.SetActive(false);
         Main.Instance.gameManager.welcomeWindow.SetActive(false);
         Main.Instance.gameManager.waitingWindow.SetActive(false);
@@ -289,9 +293,9 @@ public class GameManager : MonoBehaviour {
 
         // Save score
         if (qm.teamId == 0) {
-            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerOneScore));
+            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerOneScore, Main.Instance.gameManager.sessionID));
         } else {
-            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerTwoScore));
+            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerTwoScore, Main.Instance.gameManager.sessionID));
         }
 
         Main.Instance.gameManager.lobbyWindow.SetActive(true);
@@ -301,7 +305,7 @@ public class GameManager : MonoBehaviour {
         Main.Instance.gameManager.resultsWindow.SetActive(false);
 
         // Save game data to highscores
-        StartCoroutine(Main.Instance.web.SaveGame(username_player1, playerOneScore, username_player2, playerTwoScore));
+        StartCoroutine(Main.Instance.web.SaveGame(username_player1, playerOneScore, username_player2, playerTwoScore, Main.Instance.gameManager.sessionID));
 
         Invoke("ShutdownRelay", 1.0f);
 
@@ -486,9 +490,9 @@ public class GameManager : MonoBehaviour {
 
         // Save score
         if (mm.teamId == 0) {
-            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerOneScore));
+            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerOneScore, Main.Instance.gameManager.sessionID));
         } else {
-            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerTwoScore));
+            StartCoroutine(Main.Instance.web.SaveScore(Main.Instance.userInfo.UserId, Main.Instance.userInfo.Score + playerTwoScore, Main.Instance.gameManager.sessionID));
         }
 
         // Reset outlines
@@ -550,6 +554,18 @@ public class GameManager : MonoBehaviour {
     }
 
 
+    string RandomPasswordGenerator(int length) {
+        string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        string generatedPassword = "";
+        System.Random random = new System.Random();
+
+        for (int i = 0; i < length; i++)
+            generatedPassword += characters[random.Next(0, characters.Length)];
+
+        return generatedPassword;
+    }
+
+
     #region Manage Events
     private void RegisterEvents() {
         // Server events
@@ -578,12 +594,19 @@ public class GameManager : MonoBehaviour {
     }
 
     private void OnStartGameClient(NetMessage msg) {
+        NetStartGame nsg = msg as NetStartGame;
+
         // Show the start canvas (game window)
         Main.Instance.gameManager.gameWindow.SetActive(true);
         Main.Instance.gameManager.selectWindow.SetActive(true);
         Main.Instance.gameManager.resultsWindow.SetActive(false);
         Main.Instance.gameManager.waitingWindow.SetActive(false);
         Main.Instance.gameManager.lobbyWindow.SetActive(false);
+
+        sessionText.text = "Session id: " + nsg.SessionId;
+        Debug.Log($"My session id is {nsg.SessionId}");
+
+        //StartCoroutine(Main.Instance.web.CreateServer(RandomPasswordGenerator(25)));
 
         // Start the countdown timer
         countdownCoroutine = StartCoroutine(StartCountdown());
@@ -612,6 +635,8 @@ public class GameManager : MonoBehaviour {
         NetWelcome nw = msg as NetWelcome;
 
         // Assign the team
+
+
         currentTeam = nw.AssignedTeam;
 
         Debug.Log($"My assigned team is {nw.AssignedTeam}");
